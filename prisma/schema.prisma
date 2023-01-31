@@ -1,0 +1,51 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  UNDISCLOSED
+}
+
+model Veterinary {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  email     String   @unique
+  password  String
+  phone     Int?
+  web       String?
+  token     String?
+  confirmed Boolean? @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  pets      Pet[]
+  v         Int      @default(0) @map("__v") @ignore
+
+  @@map("veterinarians")
+}
+
+model Pet {
+  id           String     @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  gender       Gender?    @default(UNDISCLOSED)
+  owner        String
+  email        String
+  date         DateTime   @default(now())
+  symptoms     String
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  veterinary   Veterinary @relation(fields: [veterinaryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  veterinaryId String     @db.ObjectId
+  v            Int        @default(0) @map("__v") @ignore
+
+  @@map("pets")
+}
